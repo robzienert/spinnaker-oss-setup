@@ -1,12 +1,18 @@
 source /tmp/spinnaker-setup.sh
 
 function setup_repo() {
-  ok github $SPINNAKER_WORKSPACE/$2 spinnaker/$2
+  local project="$1"
+  local github_upstream="$2"
+  if [[ -z "$2" ]]; then
+    github_upstream="spinnaker"
+  fi
+
+  ok github $SPINNAKER_WORKSPACE/$project $github_upstream/$project
   if did_update; then
-    cd $SPINNAKER_WORKSPACE/$2
+    cd $SPINNAKER_WORKSPACE/$project
     echo "Setting upstream remote"
     git remote rename origin upstream
-    git remote add origin git@github.com/$GITHUB_USERNAME/$2.git
+    git remote add origin git@github.com/$GITHUB_USERNAME/$project.git
     git branch --set-upstream-to upstream/master
   fi
 }
@@ -32,4 +38,7 @@ setup_repo "scheduled-actions"
 setup_repo "swabbie"
 setup_repo "spinnaker-dependencies"
 setup_repo "spinnaker-gradle-project"
+setup_repo "spinnaker-performance" "ajordens"
 setup_repo "styleguide"
+
+# TODO rz - spincli needed as well

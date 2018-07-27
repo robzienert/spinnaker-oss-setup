@@ -16,12 +16,11 @@ if [[ `uname` -ne "Darwin" ]]; then
   exit 1
 fi
 
-# ln -si $DIR/files/env.sh $HOME/.spinnaker-env.sh
-bork do ok symlink $DIR/files/env.sh $HOME/.spinnaker-env.sh
+bork do ok symlink $HOME/.spinnaker-env.sh $DIR/files/env.sh
 source $HOME/.spinnaker-env.sh
 
 bork satisfy satisfy/osx.sh
 bork satisfy satisfy/repos.sh
 
 bork do ok directory $HOME/.spinnaker
-bork do ok symlink $DIR/files/logback-defaults.xml $HOME/.spinnaker/logback-defaults.xml
+bork do ok symlink $HOME/.spinnaker/logback-defaults.xml $DIR/files/logback-defaults.xml
