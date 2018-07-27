@@ -24,3 +24,6 @@ bork satisfy satisfy/repos.sh
 
 bork do ok directory $HOME/.spinnaker
 bork do ok symlink $HOME/.spinnaker/logback-defaults.xml $DIR/files/logback-defaults.xml
+
+# TODO rz - should be automatic
+echo "Add 'source $HOME/.spinnaker-env.sh' to your shell"
