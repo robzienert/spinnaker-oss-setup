@@ -6,5 +6,6 @@ ok brew nvm
 ok brew openssl
 ok brew redis
 ok brew yarn
+ok brew mysql
 
 ok cask java8
