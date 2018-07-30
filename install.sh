@@ -6,15 +6,21 @@ if [ "$#" -eq 0 ]; then
   exit 1
 fi
 
-echo "export GITHUB_USERNAME=$1" | tee /tmp/spinnaker-setup.sh
-source /tmp/spinnaker-setup.sh
-
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-
 if [[ `uname` -ne "Darwin" ]]; then
   echo "Only supports OSX at this point (contribs welcome!)"
   exit 1
 fi
+
+if ! type "bork" > /dev/null; then
+  echo "Dependency not met: bork, installing..."
+  git clone https://github.com/mattly/bork $HOME/.bork
+  ln -sf $HOME/.bork/bin/bork /usr/local/bin/bork
+fi
+
+echo "export GITHUB_USERNAME=$1" | tee /tmp/spinnaker-setup.sh
+source /tmp/spinnaker-setup.sh
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
 bork do ok symlink $HOME/.spinnaker-env.sh $DIR/files/env.sh
 source $HOME/.spinnaker-env.sh
