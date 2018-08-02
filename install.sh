@@ -23,33 +23,13 @@ source /tmp/spinnaker-setup.sh
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
 bork do ok symlink $HOME/.spinnaker-env.sh $DIR/files/env.sh
-if did_error; then
-  echo "Failed symlinking environment"
-  exit 1
-fi
 source $HOME/.spinnaker-env.sh
 
 bork satisfy satisfy/osx.sh
-if did_error; then
-  echo "Failed satisfying OSX requirements"
-  exit 1
-fi
-
 bork satisfy satisfy/repos.sh
-if did_error; then
-  echo "Failed satisfying repo setup"
-  exit 1
-fi
 
 bork do ok directory $HOME/.spinnaker
-if did_error; then
-  mkdir -p $HOME/.spinnaker
-fi
 bork do ok symlink $HOME/.spinnaker/logback-defaults.xml $DIR/files/logback-defaults.xml
-if did_error; then
-  echo "Failed symlinking logging defaults"
-  exit 1
-fi
 
 # TODO rz - should be automatic
 echo "Add 'source $HOME/.spinnaker-env.sh' to your shell"
