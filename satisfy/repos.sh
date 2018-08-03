@@ -40,5 +40,6 @@ setup_repo "spinnaker-dependencies"
 setup_repo "spinnaker-gradle-project"
 setup_repo "spinnaker-performance" "ajordens"
 setup_repo "styleguide"
+setup_repo "spinnaker.github.io"
 
 # TODO rz - spincli needed as well
