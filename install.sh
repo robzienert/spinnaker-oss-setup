@@ -11,7 +11,6 @@ if [[ `uname` -ne "Darwin" ]]; then
   exit 1
 fi
 
-#!/usr/bin/env bash
 if ! type brew > /dev/null; then
   echo "Dependency not met: homebrew. Installing..."
   /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
