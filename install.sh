@@ -11,10 +11,14 @@ if [[ `uname` -ne "Darwin" ]]; then
   exit 1
 fi
 
-if ! type "bork" > /dev/null; then
+if ! type brew > /dev/null; then
+  echo "Dependency not met: homebrew. Installing..."
+  /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+fi
+
+if ! type bork > /dev/null; then
   echo "Dependency not met: bork, installing..."
-  git clone https://github.com/mattly/bork $HOME/.bork
-  ln -sf $HOME/.bork/bin/bork /usr/local/bin/bork
+  brew install bork
 fi
 
 echo "export GITHUB_USERNAME=$1" | tee /tmp/spinnaker-setup.sh
