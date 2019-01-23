@@ -5,7 +5,9 @@ ok brew node
 ok brew nvm
 ok brew openssl
 ok brew redis
+ok brew services start redis
 ok brew yarn
 ok brew mysql@5.7
+ok brew services start mysql@5.7
 
 ok cask java8
