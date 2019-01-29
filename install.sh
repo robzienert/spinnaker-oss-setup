@@ -42,5 +42,5 @@ else
   echo "ACTION REQUIRED: Add 'source $HOME/.spinnaker-env.sh' to your shell"
 fi
 
-/usr/local/opt/mysql@5.7/bin/mysql -u root < ./files/mysql-setup.sql
+/usr/local/opt/mysql@5.7/bin/mysql -u root < $SPINNAKER_WORKSPACE/orca/orca-sql-mysql/mysql-setup.sql
 
