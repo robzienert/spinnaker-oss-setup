@@ -10,4 +10,4 @@ ok brew yarn
 ok brew mysql@5.7
 ok brew services start mysql@5.7
 
-ok cask java8
+ok brew cask install java8
