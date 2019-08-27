@@ -12,8 +12,7 @@ function setup_repo() {
     cd $SPINNAKER_WORKSPACE/$project
     echo "Setting upstream remote"
     git remote rename origin upstream
-    git remote add origin git@github.com:$GITHUB_USERNAME/$project.git
-    git branch --set-upstream-to upstream/master
+    hub fork --remote-name origin
   fi
 }
 
