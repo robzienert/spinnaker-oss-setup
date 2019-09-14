@@ -1,6 +1,11 @@
 #!/bin/bash
 
+# fail out on error
+set -e
+
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+
+
 
 function print_help {
   local current_install_dir=$(source $DIR/files/env.sh && echo $SPINNAKER_WORKSPACE)
@@ -40,12 +45,19 @@ function validate_github {
   fi
 }
 
-if [[ `uname` -ne "Darwin" ]]; then
-  echo "Only supports OSX at this point (contribs welcome!)"
+case $(uname) in
+  Darwin)
+    OS="Darwin"
+    ;;
+  Linux)
+    OS="Linux"
+    ;;
+  *)
+    echo "Only supports OSX and Linux at this point (contribs welcome!)"
   echo ""
   echo ""
   print_help
-fi
+esac
 
 if [ "$1" == "-h" ]; then
   print_help
@@ -53,45 +65,77 @@ fi
 
 validate_github $1
 
-if ! type brew > /dev/null; then
-  echo "Dependency not met: homebrew. Installing..."
-  /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+# install brew if not available
+# skip for linux
+if [ $OS = "Darwin" ]; then
+  if ! type brew > /dev/null; then
+    echo "Dependency not met: homebrew. Installing..."
+    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+  fi
 fi
 
+# install bork if not available (via brew for OSX,
+# and via git clone for linux)
 if ! type bork > /dev/null; then
   echo "Dependency not met: bork, installing..."
-  brew install bork
+  case $OS in
+    Darwin)
+      brew install bork
+      ;;
+    Linux)
+      git clone https://github.com/mattly/bork
+      sudo ln -s $(pwd)/bork/bin/bork /usr/local/bin/bork
+      ;;
+    *)
+      echo "Installing bork is not supported for your system (contrib. welcome!)"
+      exit 1
+  esac
 fi
 
 bork do ok symlink $HOME/.spinnaker-env.sh $DIR/files/env.sh
 source $HOME/.spinnaker-env.sh
 
-bork satisfy satisfy/taps.sh
+case $OS in
+  Darwin)
+    bork satisfy satisfy/taps.sh
 
-# need a JDK but can't bork cask this due to sudo
-brew cask install zulu8
+    # need a JDK but can't bork cask this due to sudo
+    brew cask install zulu8
 
-bork satisfy satisfy/osx.sh
+    bork satisfy satisfy/osx.sh
+
+    brew services start redis
+    brew services start mysql@5.7
+
+    export NVM_DIR="$HOME/.nvm"
+    bork do ok directory $NVM_DIR
+    source /usr/local/opt/nvm/nvm.sh
+    ;;
+
+  Linux)
+    # use bash instead of bork
+    sudo ./satisfy/linux.sh
+    source $HOME/.nvm/nvm.sh
+    ;;
+  *)
+    echo "Unsupported OS"
+    exit 1
+esac
+
 bork satisfy satisfy/repos.sh
-
-brew services start redis
-brew services start mysql@5.7
-
-export NVM_DIR="$HOME/.nvm"
-bork do ok directory $NVM_DIR
-source /usr/local/opt/nvm/nvm.sh
 nvm install --lts
 npm -g install yarn
 
 bork do ok directory $HOME/.spinnaker
 bork do ok symlink $HOME/.spinnaker/logback-defaults.xml $DIR/files/logback-defaults.xml
 
-/usr/local/opt/mysql@5.7/bin/mysql -u root < $SPINNAKER_WORKSPACE/orca/orca-sql-mysql/mysql-setup.sql
+# don't fail on error
+set +e
 
 function update_shell_profile {
   local profile_file=$HOME/$1
   local expected_entry=$2
- 
+
   grep -q "${expected_entry}" "${profile_file}" || echo "${expected_entry}" >> "${profile_file}"
 }
 
@@ -103,9 +147,11 @@ export NVM_DIR="$HOME/.nvm"
 EOF
 
 SOURCE_SPINNAKER_ENV='source $HOME/.spinnaker-env.sh'
+SOURCE_BASHRC='test -f $HOME/.bashrc && source $HOME/.bashrc'
 
 if [[ "$SHELL" =~ ^.*bash$ ]]; then
   update_shell_profile ".bash_profile" "${SOURCE_SPINNAKER_ENV}"
+  update_shell_profile ".bash_profile" "${SOURCE_BASHRC}"
   update_shell_profile ".bashrc" "${CONFIGURE_NVM}"
 elif [[ "$SHELL" =~ ^.*zsh$ ]]; then
   update_shell_profile ".zshenv" "${SOURCE_SPINNAKER_ENV}"
@@ -120,3 +166,19 @@ else
   echo ""
 fi
 
+case $OS in
+  Darwin)
+    /usr/local/opt/mysql@5.7/bin/mysql -u root < $SPINNAKER_WORKSPACE/orca/orca-sql-mysql/mysql-setup.sql
+    ;;
+  Linux)
+    sudo mysql < $SPINNAKER_WORKSPACE/orca/orca-sql-mysql/mysql-setup.sql
+    ;;
+  *)
+  ;;
+esac
+if [ $? -ne 0 ]; then
+  echo MySQL setup with $SPINNAKER_WORKSPACE/orca/orca-sql-mysql/mysql-setup.sql failed. Please check the status of the database and perform manual fixes as necessary.
+  echo This execution is likely to fail if the orca database or orca_migrate and orca_service users already exist.
+else
+  echo spinnaker-oss-setup complete!
+fi
