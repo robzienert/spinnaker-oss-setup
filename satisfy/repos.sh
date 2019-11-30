@@ -18,6 +18,7 @@ function setup_repo() {
 
 ok directory $SPINNAKER_WORKSPACE
 
+setup_repo "community"
 setup_repo "clouddriver"
 setup_repo "deck"
 setup_repo "echo"
@@ -33,9 +34,7 @@ setup_repo "kork"
 setup_repo "moniker"
 setup_repo "orca"
 setup_repo "rosco"
-setup_repo "scheduled-actions"
 setup_repo "swabbie"
-setup_repo "spinnaker-dependencies"
 setup_repo "spinnaker-gradle-project"
 setup_repo "spinnaker-performance" "ajordens"
 setup_repo "styleguide"
