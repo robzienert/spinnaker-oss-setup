@@ -100,7 +100,7 @@ case $OS in
     bork satisfy satisfy/taps.sh
 
     # need a JDK but can't bork cask this due to sudo
-    brew cask install zulu8
+    brew install --cask zulu11
 
     bork satisfy satisfy/osx.sh
 
